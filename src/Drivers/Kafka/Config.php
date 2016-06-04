@@ -1,5 +1,5 @@
 <?php
-namespace DanikdDntist\QueueWrapper\Conf;
+namespace DanikDantist\QueueWrapper\Drivers\Kafka;
 
 class Config
 {
@@ -65,7 +65,7 @@ class Config
     }
 
     /**
-     * @param string $broker
+     * @param string $broker - format (host:port)
      * @return $this
      */
     public function addBroker($broker)

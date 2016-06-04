@@ -1,7 +1,7 @@
 <?php
-namespace DanikdDntist\QueueWrapper\Interfaces;
+namespace DanikDantist\QueueWrapper\Interfaces;
 
-use DanikdDntist\QueueWrapper;
+use DanikDantist\QueueWrapper;
 
 interface iReceivable
 {

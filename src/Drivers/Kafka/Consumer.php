@@ -1,23 +1,37 @@
 <?php
-namespace DanikdDntist\QueueWrapper;
+namespace DanikDantist\QueueWrapper\Drivers\Kafka;
 
-class ReceiverDemon
+use DanikDantist\QueueWrapper\Interfaces;
+use DanikDantist\QueueWrapper\Interfaces\IReceivable;
+use DanikDantist\QueueWrapper\Message;
+
+class Consumer implements Interfaces\iConsumer
 {
-    protected $config;
-    protected $receiver;
-    protected $isInit = false;
-    protected $logger;
     protected $consumer;
+    protected $isInit = false;
+    /** @var Interfaces\iLogable|null  */
+    protected $logger = null;
+    /** @var IReceivable[]  */
+    protected $receiverList = [];
 
-    public function __construct(Interfaces\iReceivable $receiver, Conf\Config $config, Interfaces\iLogable $logger = null)
+    protected $config;
+
+    public function __construct(Config $config)
     {
-        $this->receiver = $receiver;
         $this->config = $config;
+    }
 
-        if ($logger === null) {
-            $this->logger = new NullLogger();
-        } else {
-            $this->logger = $logger;
+    protected function logError($error)
+    {
+        if ($this->logger !== null) {
+            $this->logger->error($error);
+        }
+    }
+
+    protected function logInfo($info)
+    {
+        if ($this->logger !== null) {
+            $this->logger->info($info);
         }
     }
 
@@ -28,6 +42,7 @@ class ReceiverDemon
 
     protected function init()
     {
+        $this->logInfo('Initialize consumer');
         $this->isInit = true;
 
         $conf = new \RdKafka\Conf();
@@ -35,17 +50,17 @@ class ReceiverDemon
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    $this->logger->info('Assign:');
+                    $this->logInfo('Assign: '.count($partitions));
                     $kafka->assign($partitions);
                     break;
 
                 case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
-                    $this->logger->info('Revoke:');
+                    $this->logInfo('Revoke:');
                     $kafka->assign(NULL);
                     break;
 
                 default:
-                    $this->logger->error($err);
+                    $this->logError($err);
                     throw new \Exception($err);
             }
         });
@@ -68,30 +83,36 @@ class ReceiverDemon
         $this->consumer = $consumer;
     }
 
-    public function start()
+    public function addReceiver(IReceivable $receiver)
+    {
+        $this->receiverList[] = $receiver;
+    }
+
+    public function listenMessage()
     {
         if (!$this->isInit) {
             $this->init();
         }
 
-        $this->logger->info('Waiting for partition assignment...');
+        $this->logInfo('Waiting for partition assignment...');
         $timeout = $this->config->getTimeout();
         while (true) {
             $message = $this->consumer->consume($timeout);
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
-                    $this->logger->info('Receive message, key: '.$message->key.', offset: '.$message->offset);
-                    $this->receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->partition, $message->key));
+                    $this->logInfo('Receive message, key: '.$message->key.', offset: '.$message->offset);
+                    foreach ($this->receiverList as $receiver) {
+                        $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->partition, $message->key));
+                    }
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                    $this->logger->info('No more messages; will wait for more');
+                    $this->logInfo('No more messages; will wait for more');
                     break;
                 case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                    $this->logger->info('Timed out');
-                    $this->logger->info('Memory usage: '.memory_get_usage(true));
+                    $this->logInfo('Timed out. Memory usage: '.memory_get_usage(true));
                     break;
                 default:
-                    $this->logger->error('offset: '.$message->offset.', key: '.$message->key.' error: '.$message->errstr());
+                    $this->logError('offset: '.$message->offset.', key: '.$message->key.' error: '.$message->errstr());
                     throw new \Exception($message->errstr(), $message->err);
                     break;
             }

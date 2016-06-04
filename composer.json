@@ -1,0 +1,17 @@
+{
+  "name": "Queue-Wrapper",
+  "version": "0.0.1",
+  "description": "Сервис доступности фич",
+  "keywords": ["queue", "wrapper", "rdKafka"],
+  "license": "MIT",
+  "require": {
+    "php": ">=5.5.9"
+  },
+  "require-dev": {
+
+  },
+  "prefer-stable": true,
+  "autoload": {
+    "classmap": ["src"]
+  }
+}

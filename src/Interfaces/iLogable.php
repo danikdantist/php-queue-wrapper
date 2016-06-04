@@ -1,5 +1,5 @@
 <?php
-namespace DanikdDntist\QueueWrapper\Interfaces;
+namespace DanikDantist\QueueWrapper\Interfaces;
 
 interface iLogable
 {

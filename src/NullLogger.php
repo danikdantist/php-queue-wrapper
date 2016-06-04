@@ -1,5 +1,5 @@
 <?php
-namespace DanikdDntist\QueueWrapper;
+namespace DanikDantist\QueueWrapper;
 
 
 class NullLogger implements Interfaces\iLogable
