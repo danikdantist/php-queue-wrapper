@@ -1,3 +1,10 @@
+If you want to use Kafka, you need kafka lib
+https://github.com/edenhill/librdkafka
+and rdkafka extension for php
+https://github.com/arnaud-lb/php-rdkafka
+
+I hope you will help my Dockerfile
+https://github.com/danikdantist/Dockerfiles/blob/master/php/php5-fpm-nginx-kafka/Dockerfile
 
 Consumer usage:
 
