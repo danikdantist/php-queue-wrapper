@@ -1,3 +1,8 @@
+Install
+```
+composer require danikdantist/queue-wrapper
+```
+
 If you want to use Kafka, you need kafka lib
 https://github.com/edenhill/librdkafka
 and rdkafka extension for php
