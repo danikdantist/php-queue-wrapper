@@ -1,17 +1,21 @@
 {
-  "name": "Queue-Wrapper",
+  "name": "danikdantist/queue-wrappe",
   "version": "0.0.1",
-  "description": "Сервис доступности фич",
-  "keywords": ["queue", "wrapper", "rdKafka"],
-  "license": "MIT",
+  "description": "My first Composer project",
+  "keywords": [
+    "queue",
+    "wrapper",
+    "rdKafka"
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+
   "require": {
     "php": ">=5.5.9"
   },
-  "require-dev": {
-
-  },
-  "prefer-stable": true,
   "autoload": {
-    "classmap": ["src"]
+    "classmap": [
+      "src"
+    ]
   }
 }
