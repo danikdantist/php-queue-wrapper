@@ -8,7 +8,7 @@ https://github.com/edenhill/librdkafka
 and rdkafka extension for php
 https://github.com/arnaud-lb/php-rdkafka
 
-I hope you will help my Dockerfile
+You can use dockerfile to create docker image where librdkafka and PHP kafka extension already installed:
 https://github.com/danikdantist/Dockerfiles/blob/master/php/php5-fpm-nginx-kafka/Dockerfile
 
 Consumer usage:

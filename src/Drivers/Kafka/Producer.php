@@ -43,11 +43,9 @@ class Producer implements Interfaces\iProducer
     {
         $this->logInfo('Initialize producer');
         $this->isInit = true;
-        pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
 
         $conf = new \RdKafka\Conf();
         $conf->set('receive.message.max.bytes',1000000);
-        $conf->set('internal.termination.signal', SIGIO);
         $conf->set('topic.metadata.refresh.sparse',true);
         $conf->set('topic.metadata.refresh.interval.ms',600000);
         $conf->set('queued.max.messages.kbytes',100000000);
