@@ -65,15 +65,22 @@ class Consumer implements Interfaces\iConsumer
             }
         });
 
+        pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
+        $conf->set('internal.termination.signal', SIGIO);
 
         $conf->set('group.id', $this->config->getGroup());
         $conf->set('metadata.broker.list', implode(',', $this->config->getBrokerList()));
         $conf->set('receive.message.max.bytes',1024*1024*100);
 
+        $conf->set("enable.auto.commit", "false");
+        $conf->set("enable.auto.offset.store", "false");
+
         $topicConf = new \RdKafka\TopicConf();
+
+        $topicConf->set('auto.commit.enable', 'false');
         $topicConf->set('auto.offset.reset', 'smallest');
-        $topicConf->set('auto.commit.interval.ms', 100);
         $topicConf->set('offset.store.method', 'broker');
+
         $conf->setDefaultTopicConf($topicConf);
 
         $consumer = new \RdKafka\KafkaConsumer($conf);
@@ -104,6 +111,7 @@ class Consumer implements Interfaces\iConsumer
                     foreach ($this->receiverList as $receiver) {
                         $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->partition, $message->key));
                     }
+                    $this->consumer->commitAsync($message);
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
                     $this->logInfo('No more messages; will wait for more');
