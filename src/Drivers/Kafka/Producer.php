@@ -69,7 +69,7 @@ class Producer implements Interfaces\iProducer
         }
 
         if (!isset($this->topicMap[$topicName])) {
-            $this->logInfo('Instance topic "'.$topicName.'"');
+            $this->logInfo('Prepare topic "'.$topicName.'"');
             $this->topicMap[$topicName] = $this->producer->newTopic($topicName);
         }
 
@@ -78,8 +78,9 @@ class Producer implements Interfaces\iProducer
 
     public function sendMessage(Message $message)
     {
-        $topic = $this->getTopic($message->getTopicName());
-        $this->logInfo('Send message');
+        $topicName = $message->getTopicName();
+        $topic = $this->getTopic($topicName);
+        $this->logInfo('Send message to topic "'.$topicName.'"');
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message->toString(), $message->getKey());
     }
 }

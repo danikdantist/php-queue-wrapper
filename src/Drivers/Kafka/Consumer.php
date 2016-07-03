@@ -107,7 +107,7 @@ class Consumer implements Interfaces\iConsumer
             $message = $this->consumer->consume($timeout);
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
-                    $this->logInfo('Receive message, key: '.$message->key.', offset: '.$message->offset);
+                    $this->logInfo('Receive message, topic-name: "'.$message->topic_name.'", key: "'.$message->key.'", offset: '.$message->offset);
                     foreach ($this->receiverList as $receiver) {
                         $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->partition, $message->key));
                     }
@@ -120,7 +120,7 @@ class Consumer implements Interfaces\iConsumer
                     $this->logInfo('Timed out. Memory usage: '.memory_get_usage(true));
                     break;
                 default:
-                    $this->logError('offset: '.$message->offset.', key: '.$message->key.' error: '.$message->errstr());
+                    $this->logError('offset: '.$message->offset.', key: "'.$message->key.'", topic-name: "'.$message->topic_name.'", error: '.$message->errstr());
                     throw new \Exception($message->errstr(), $message->err);
                     break;
             }
