@@ -51,8 +51,10 @@ class Producer implements Interfaces\iProducer
         $conf->set('queued.max.messages.kbytes',100000000);
         $conf->set('socket.send.buffer.bytes',1000000);
         $conf->set('queue.buffering.max.messages',10000000);
-        //$conf->set('queue.buffering.max.ms',1);
 
+        $conf->setErrorCb(function ($kafka, $err, $reason) {
+            $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+        });
 
         $rk = new \RdKafka\Producer($conf);
         $rk->setLogLevel(LOG_DEBUG);

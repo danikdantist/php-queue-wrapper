@@ -75,6 +75,10 @@ class Consumer implements Interfaces\iConsumer
         $conf->set("enable.auto.commit", "false");
         $conf->set("enable.auto.offset.store", "false");
 
+        $conf->setErrorCb(function ($kafka, $err, $reason) {
+            $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+        });
+
         $topicConf = new \RdKafka\TopicConf();
 
         $topicConf->set('auto.commit.enable', 'false');
