@@ -6,6 +6,7 @@ class Message
     protected $message = '';
     protected $topicName = '';
     protected $key = '';
+    protected $partition = 0;
 
 
     public function __construct($message, $topicName, $key = null, $partition = 0)
@@ -13,6 +14,7 @@ class Message
         $this->message = $message;
         $this->topicName = $topicName;
         $this->key = $key;
+        $this->partition = $partition;
     }
 
     /**
@@ -29,6 +31,14 @@ class Message
     public function getTopicName()
     {
         return $this->topicName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPartition()
+    {
+        return $this->partition;
     }
 
 

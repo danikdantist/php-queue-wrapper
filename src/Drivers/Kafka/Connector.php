@@ -19,7 +19,7 @@ class Connector extends Drivers\Connector
         $this->logger = $logger;
     }
 
-    protected function getConsumer()
+    protected function getConsumer(): Interfaces\iConsumer
     {
         if ($this->consumer === null) {
             $this->consumer = new Consumer($this->config);
@@ -30,7 +30,7 @@ class Connector extends Drivers\Connector
         return $this->consumer;
     }
 
-    protected function getProducer()
+    protected function getProducer(): Interfaces\iProducer
     {
         if ($this->producer === null) {
             $this->producer = new Producer($this->config);
@@ -54,5 +54,15 @@ class Connector extends Drivers\Connector
     public function sendMessage(Message $message)
     {
         $this->getProducer()->sendMessage($message);
+    }
+
+    public function addMessage(Message $message)
+    {
+        $this->getProducer()->addMessage($message);
+    }
+
+    public function flush()
+    {
+        $this->getProducer()->flush();
     }
 }

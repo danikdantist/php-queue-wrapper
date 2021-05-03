@@ -70,22 +70,18 @@ class Consumer implements Interfaces\iConsumer
 
         $conf->set('group.id', $this->config->getGroup());
         $conf->set('metadata.broker.list', implode(',', $this->config->getBrokerList()));
-        $conf->set('receive.message.max.bytes',1024*1024*100);
+
 
         $conf->set("enable.auto.commit", "false");
         $conf->set("enable.auto.offset.store", "false");
+        //$conf->set('auto.offset.reset', 'smallest');
+        $conf->set('offset.store.method', 'broker');
+
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
             $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
         });
 
-        $topicConf = new \RdKafka\TopicConf();
-
-        $topicConf->set('auto.commit.enable', 'false');
-        $topicConf->set('auto.offset.reset', 'smallest');
-        $topicConf->set('offset.store.method', 'broker');
-
-        $conf->setDefaultTopicConf($topicConf);
 
         $consumer = new \RdKafka\KafkaConsumer($conf);
 
@@ -113,7 +109,7 @@ class Consumer implements Interfaces\iConsumer
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
                     $this->logInfo('Receive message, topic-name: "'.$message->topic_name.'", key: "'.$message->key.'", offset: '.$message->offset);
                     foreach ($this->receiverList as $receiver) {
-                        $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->partition, $message->key));
+                        $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->key, $message->partition));
                     }
                     $this->consumer->commitAsync($message);
                     break;

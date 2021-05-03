@@ -27,4 +27,14 @@ class Manager implements Interfaces\iConsumer, Interfaces\iProducer
     {
         $this->connector->sendMessage($message);
     }
+
+    public function addMessage(Message $message)
+    {
+        $this->connector->addMessage($message);
+    }
+
+    public function flush()
+    {
+        $this->connector->flush();
+    }
 }

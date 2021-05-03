@@ -45,19 +45,20 @@ class Producer implements Interfaces\iProducer
         $this->isInit = true;
 
         $conf = new \RdKafka\Conf();
+
         $conf->set('receive.message.max.bytes',1000000);
         $conf->set('topic.metadata.refresh.sparse',true);
         $conf->set('topic.metadata.refresh.interval.ms',600000);
-        $conf->set('queued.max.messages.kbytes',100000000);
         $conf->set('socket.send.buffer.bytes',1000000);
         $conf->set('queue.buffering.max.messages',10000000);
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
             $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
         });
-
+        //$conf->setLogLevel((string) LOG_DEBUG);
+        //$conf->set('debug', 'all');
         $rk = new \RdKafka\Producer($conf);
-        $rk->setLogLevel(LOG_DEBUG);
+
         $rk->addBrokers(implode(',', $this->config->getBrokerList()));
 
         $this->producer = $rk;
@@ -72,7 +73,10 @@ class Producer implements Interfaces\iProducer
 
         if (!isset($this->topicMap[$topicName])) {
             $this->logInfo('Prepare topic "'.$topicName.'"');
-            $this->topicMap[$topicName] = $this->producer->newTopic($topicName);
+            $conf = new \RdKafka\TopicConf();
+            //$conf->set("...", "...");
+            //$conf->setPartitioner(2);
+            $this->topicMap[$topicName] = $this->producer->newTopic($topicName, $conf);
         }
 
         return $this->topicMap[$topicName];
@@ -82,7 +86,33 @@ class Producer implements Interfaces\iProducer
     {
         $topicName = $message->getTopicName();
         $topic = $this->getTopic($topicName);
-        $this->logInfo('Send message to topic "'.$topicName.'"');
+        $this->logInfo('Send message to topic "'.$topicName.'" '.$message->toString());
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message->toString(), $message->getKey());
+        $this->flush();
+    }
+
+    public function addMessage(Message $message)
+    {
+        $topicName = $message->getTopicName();
+        $topic = $this->getTopic($topicName);
+        $this->logInfo('Send message to topic "'.$topicName.'" '.$message->toString());
+        $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message->toString(), $message->getKey());
+        $this->producer->poll(0);
+    }
+
+    public function flush()
+    {
+        $result = null;
+        for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
+            $result = $this->producer->flush(10000);
+            if (RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
+                break;
+            }
+        }
+        if (RD_KAFKA_RESP_ERR_NO_ERROR !== $result) {
+            $this->logError('Was unable to flush, messages might be lost!');
+        } else {
+            $this->logInfo('Message sent');
+        }
     }
 }
