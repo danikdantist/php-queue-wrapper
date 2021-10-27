@@ -53,10 +53,12 @@ class Producer implements Interfaces\iProducer
         $conf->set('queue.buffering.max.messages',10000000);
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
+            $this->logError('broker-list: '.implode(',', $this->config->getBrokerList()));
             $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
         });
         //$conf->setLogLevel((string) LOG_DEBUG);
         //$conf->set('debug', 'all');
+        $conf->set('bootstrap.servers', implode(',', $this->config->getBrokerList()));
         $rk = new \RdKafka\Producer($conf);
 
         $rk->addBrokers(implode(',', $this->config->getBrokerList()));
