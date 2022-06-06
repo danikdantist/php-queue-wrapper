@@ -74,8 +74,6 @@ class Consumer implements Interfaces\iConsumer
 
         $conf->set("enable.auto.commit", "false");
         $conf->set("enable.auto.offset.store", "false");
-        //$conf->set('auto.offset.reset', 'smallest');
-        $conf->set('offset.store.method', 'broker');
 
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
