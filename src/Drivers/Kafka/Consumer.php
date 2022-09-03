@@ -35,6 +35,13 @@ class Consumer implements Interfaces\iConsumer
         }
     }
 
+    protected function logDebug($debug)
+    {
+        if ($this->logger !== null) {
+            $this->logger->debug($debug);
+        }
+    }
+
     public function setLogger(Interfaces\iLogable $logger)
     {
         $this->logger = $logger;
@@ -110,7 +117,7 @@ class Consumer implements Interfaces\iConsumer
             $message = $this->consumer->consume($timeout);
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
-                    $this->logInfo('Receive message, topic-name: "'.$message->topic_name.'", key: "'.$message->key.'", offset: '.$message->offset);
+                    $this->logDebug('Receive message, topic-name: "'.$message->topic_name.'", key: "'.$message->key.'", offset: '.$message->offset);
                     foreach ($this->receiverList as $receiver) {
                         $receiver->receiveMessage(new Message($message->payload, $message->topic_name, $message->key, $message->partition));
                     }
