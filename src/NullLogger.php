@@ -11,4 +11,8 @@ class NullLogger implements Interfaces\iLogable
     public function error($error)
     {
     }
+
+    public function debug($debug)
+    {
+    }
 }

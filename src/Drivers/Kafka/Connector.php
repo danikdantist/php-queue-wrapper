@@ -10,7 +10,6 @@ class Connector extends Drivers\Connector
 {
     protected $producer;
     protected $consumer;
-    protected $config;
     protected $logger;
 
     public function __construct(Config $config, Interfaces\iLogable $logger = null)

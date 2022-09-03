@@ -47,6 +47,11 @@ class Consumer implements Interfaces\iConsumer
 
         $conf = new \RdKafka\Conf();
 
+        $rawConfig = $this->config->getKafkaRawConfig();
+        foreach ($rawConfig as $key => $value) {
+            $conf->set($key, $value);
+        }
+
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:

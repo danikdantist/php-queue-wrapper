@@ -1,7 +1,7 @@
 {
   "name": "danikdantist/queue-wrapper",
-  "version": "1.0.0",
-  "description": "My first Composer project",
+  "version": "2.0.0",
+  "description": "kafka wrapper",
   "keywords": [
     "queue",
     "wrapper",
@@ -11,7 +11,7 @@
   "prefer-stable": true,
 
   "require": {
-    "php": ">=7.0"
+    "php": ">=8.0"
   },
   "autoload": {
     "classmap": [

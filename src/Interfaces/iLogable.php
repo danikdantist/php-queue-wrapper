@@ -8,4 +8,7 @@ interface iLogable
 
     /** @var string $error */
     public function error($error);
+
+    /** @var string $debug */
+    public function debug($debug);
 }

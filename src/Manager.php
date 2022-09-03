@@ -12,6 +12,11 @@ class Manager implements Interfaces\iConsumer, Interfaces\iProducer
         $this->connector = $connector;
     }
 
+    public function getConfig()
+    {
+        return $this->connector->getConfig();
+    }
+
     public function addReceiver(IReceivable $receiver)
     {
         $this->connector->addReceiver($receiver);

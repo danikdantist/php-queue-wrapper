@@ -39,6 +39,13 @@ class Producer implements Interfaces\iProducer
         }
     }
 
+    protected function logDebug($debug)
+    {
+        if ($this->logger !== null) {
+            $this->logger->debug($debug);
+        }
+    }
+
     protected function init()
     {
         $this->logInfo('Initialize producer');
@@ -46,18 +53,21 @@ class Producer implements Interfaces\iProducer
 
         $conf = new \RdKafka\Conf();
 
-        $conf->set('receive.message.max.bytes',1000000);
-        $conf->set('topic.metadata.refresh.sparse',true);
-        $conf->set('topic.metadata.refresh.interval.ms',600000);
-        $conf->set('socket.send.buffer.bytes',1000000);
-        $conf->set('queue.buffering.max.messages',10000000);
+        $rawConfig = $this->config->getKafkaRawConfig();
+        foreach ($rawConfig as $key => $value) {
+            $conf->set($key, $value);
+        }
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
             $this->logError('broker-list: '.implode(',', $this->config->getBrokerList()));
             $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
         });
-        //$conf->setLogLevel((string) LOG_DEBUG);
-        //$conf->set('debug', 'all');
+        if ($this->config->getKafkaLogLvl() !== null) {
+            $conf->setLogLevel($this->config->getKafkaLogLvl());
+        }
+        if ($this->config->getKafkaDebug() !== null) {
+            $conf->set('debug', $this->config->getKafkaDebug());
+        }
         $conf->set('bootstrap.servers', implode(',', $this->config->getBrokerList()));
         $rk = new \RdKafka\Producer($conf);
 
@@ -76,8 +86,7 @@ class Producer implements Interfaces\iProducer
         if (!isset($this->topicMap[$topicName])) {
             $this->logInfo('Prepare topic "'.$topicName.'"');
             $conf = new \RdKafka\TopicConf();
-            //$conf->set("...", "...");
-            //$conf->setPartitioner(2);
+
             $this->topicMap[$topicName] = $this->producer->newTopic($topicName, $conf);
         }
 
@@ -88,7 +97,7 @@ class Producer implements Interfaces\iProducer
     {
         $topicName = $message->getTopicName();
         $topic = $this->getTopic($topicName);
-        $this->logInfo('Send message to topic "'.$topicName.'" '.$message->toString());
+        $this->logDebug('Send message to topic "'.$topicName.'" '.$message->toString());
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message->toString(), $message->getKey());
         $this->flush();
     }
@@ -97,7 +106,7 @@ class Producer implements Interfaces\iProducer
     {
         $topicName = $message->getTopicName();
         $topic = $this->getTopic($topicName);
-        $this->logInfo('Send message to topic "'.$topicName.'" '.$message->toString());
+        $this->logDebug('Send message to topic "'.$topicName.'" '.$message->toString());
         $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message->toString(), $message->getKey());
         $this->producer->poll(0);
     }
@@ -114,7 +123,7 @@ class Producer implements Interfaces\iProducer
         if (RD_KAFKA_RESP_ERR_NO_ERROR !== $result) {
             $this->logError('Was unable to flush, messages might be lost!');
         } else {
-            $this->logInfo('Message sent');
+            $this->logDebug('Message sent');
         }
     }
 }
