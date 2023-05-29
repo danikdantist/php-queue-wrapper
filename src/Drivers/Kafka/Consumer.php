@@ -89,7 +89,12 @@ class Consumer implements Interfaces\iConsumer
 
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
-            $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+            $message = sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason);
+            if ($err === RD_KAFKA_RESP_ERR__TRANSPORT) {
+                $this->logInfo($message);
+            } else {
+                $this->logError($message);
+            }
         });
 
 
@@ -128,6 +133,9 @@ class Consumer implements Interfaces\iConsumer
                     break;
                 case RD_KAFKA_RESP_ERR__TIMED_OUT:
                     $this->logInfo('Timed out. Memory usage: '.memory_get_usage(true));
+                    break;
+                case RD_KAFKA_RESP_ERR__TRANSPORT:
+                    $this->logInfo('Transport error. Memory usage: '.memory_get_usage(true));
                     break;
                 default:
                     $this->logError('offset: '.$message->offset.', key: "'.$message->key.'", topic-name: "'.$message->topic_name.'", error: '.$message->errstr());
