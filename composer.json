@@ -1,6 +1,7 @@
 {
   "name": "danikdantist/queue-wrapper",
-  "version": "2.0.1",
+  "license": "LGPL-3.0-or-later",
+  "version": "2.0.2",
   "description": "kafka wrapper",
   "keywords": [
     "queue",
