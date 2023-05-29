@@ -89,10 +89,11 @@ class Consumer implements Interfaces\iConsumer
 
 
         $conf->setErrorCb(function ($kafka, $err, $reason) {
+            $message = sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason);
             if ($err === RD_KAFKA_RESP_ERR__TRANSPORT) {
-                $this->logInfo(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+                $this->logInfo($message);
             } else {
-                $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+                $this->logError($message);
             }
         });
 
