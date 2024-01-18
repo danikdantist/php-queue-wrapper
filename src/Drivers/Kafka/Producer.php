@@ -58,6 +58,10 @@ class Producer implements Interfaces\iProducer
             $conf->set($key, $value);
         }
 
+        $conf->setLogCb(function ($kafka, $level, $facility, $message): void {
+            $this->logInfo(sprintf("log %s: %s (level: %d)", $facility, $message, $level));
+        });
+
         $conf->setErrorCb(function ($kafka, $err, $reason) {
             $this->logError('broker-list: '.implode(',', $this->config->getBrokerList()));
             $this->logError(sprintf("%s (reason: %s)\n", rd_kafka_err2str($err), $reason));
